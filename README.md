@@ -1,2 +1,0 @@
-bigdata-mapreduce-student
-# MapReducePicker
