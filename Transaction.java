@@ -33,7 +33,7 @@ public class Transaction {
         j.setJarByClass(Transaction.class);
         j.setMapperClass(MapForTransaction.class);
         j.setReducerClass(ReduceForTransaction.class);
-        //j.setCombinerClass(Transaction.ReduceForTransaction.class);
+        j.setCombinerClass(ReduceForTransaction.class);
 
         //definicao dos tipos de saida
         j.setOutputKeyClass(Text.class);
@@ -58,12 +58,18 @@ public class Transaction {
             String valores[] = line.split(";");
             String nomePais = valores[0].toLowerCase();
             if(nomePais.equals("brazil")){
-                /*TransactionWritable vlr = new TransactionWritable("brazil", 1);
-                con.write(new Text("transacoes"), vlr);*/
+                
                 con.write(new Text("Transacoes envolvendo Brasil "), new IntWritable(1));
             }else{
                 con.write(new Text("Transacoes envolvendo Brasil "), new IntWritable(0));
             }
+
+            String ano = valores[1];
+
+            if(!ano.equals("year")){
+                con.write(new Text(ano), new IntWritable(1));
+            }
+
 
         }
     }
