@@ -1,6 +1,7 @@
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -49,26 +50,33 @@ public class Transaction {
         // lanca o job e aguarda sua execucao
         System.exit(j.waitForCompletion(true) ? 0 : 1);
     }
-    //entra              //sai
+                                                            //entra              //sai
     public static class MapForTransaction extends Mapper<LongWritable, Text, Text, TransactionWritable> {
 
         // Funcao de map
         public void map(LongWritable key, Text value, Context con)
                 throws IOException, InterruptedException {
-
-
-
+            String line = value.toString();
+            String valores[] = line.split(",");
+            String nomePais = valores[0].toLowerCase();
+            if(nomePais == "brazil"){
+                TransactionWritable vlr = new TransactionWritable("brazil", 1);
+                con.write(new Text("transacoes"), vlr);
+            }
 
         }
     }
 
-    public static class ReduceForTransaction extends Reducer<Text, TransactionWritable, Text, FloatWritable> {
+    public static class ReduceForTransaction extends Reducer<Text, TransactionWritable, Text, IntWritable> {
 
         // Funcao de reduce
         public void reduce(Text word, Iterable<TransactionWritable> values, Context con)
                 throws IOException, InterruptedException {
-
-
+            int sum = 0;
+            for(TransactionWritable v: values){
+                sum += v.getOcorrencia();
+            }
+            con.write(word, new IntWritable());
 
         }
     }

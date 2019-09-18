@@ -8,12 +8,12 @@ import java.io.IOException;
 
 public class TransactionWritable implements Writable {
 
-    private float valor;
+    private String valor;
     private int ocorrencia;
 
     public TransactionWritable(){ }
 
-    public TransactionWritable(float valor, int ocorrencia){
+    public TransactionWritable(String valor, int ocorrencia){
         this.valor = valor;
         this.ocorrencia = ocorrencia;
     }
@@ -22,7 +22,7 @@ public class TransactionWritable implements Writable {
     public void readFields(DataInput in) throws IOException {
         //tem que ler na mesma ordem de escrita (do metodo write)
 
-        valor = Float.parseFloat(in.readUTF()) ;
+        valor = (in.readUTF()) ; //pode dar erro aqui
         ocorrencia = Integer.parseInt(in.readUTF()) ;
 
     }
@@ -33,11 +33,11 @@ public class TransactionWritable implements Writable {
         out.writeUTF(String.valueOf(ocorrencia));
     }
 
-    public float getValor() {
+    public String getValor() {
         return valor;
     }
 
-    public void setValor(float valor) {
+    public void setValor(String valor) {
         this.valor = valor;
     }
 
