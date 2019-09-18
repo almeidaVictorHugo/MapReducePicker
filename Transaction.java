@@ -27,19 +27,17 @@ public class Transaction {
         Path output = new Path(files[1]);
 
         // criacao do job e seu nome
-        Job j = new Job(c, "Transaction");
+        Job j = new Job(c, "TransactionCount");
 
         //declaracao das classes
         j.setJarByClass(Transaction.class);
-        j.setMapperClass(Transaction.MapForTransaction.class);
-        j.setReducerClass(Transaction.ReduceForTransaction.class);
-        j.setCombinerClass(Transaction.ReduceForTransaction.class);
+        j.setMapperClass(MapForTransaction.class);
+        j.setReducerClass(ReduceForTransaction.class);
+        //j.setCombinerClass(Transaction.ReduceForTransaction.class);
 
         //definicao dos tipos de saida
         j.setOutputKeyClass(Text.class);
-        j.setOutputValueClass(FloatWritable.class);
-        j.setMapOutputKeyClass(Text.class);
-        j.setMapOutputValueClass(TransactionWritable.class);
+        j.setOutputValueClass(IntWritable.class);
 
         //definindo arquivos de entrada e saida
         FileInputFormat.addInputPath(j, input);
@@ -50,33 +48,36 @@ public class Transaction {
         // lanca o job e aguarda sua execucao
         System.exit(j.waitForCompletion(true) ? 0 : 1);
     }
-                                                            //entra              //sai
-    public static class MapForTransaction extends Mapper<LongWritable, Text, Text, TransactionWritable> {
+    //entra              //sai
+    public static class MapForTransaction extends Mapper<LongWritable, Text, Text, IntWritable> {
 
         // Funcao de map
         public void map(LongWritable key, Text value, Context con)
                 throws IOException, InterruptedException {
             String line = value.toString();
-            String valores[] = line.split(",");
+            String valores[] = line.split(";");
             String nomePais = valores[0].toLowerCase();
-            if(nomePais == "brazil"){
-                TransactionWritable vlr = new TransactionWritable("brazil", 1);
-                con.write(new Text("transacoes"), vlr);
+            if(nomePais.equals("brazil")){
+                /*TransactionWritable vlr = new TransactionWritable("brazil", 1);
+                con.write(new Text("transacoes"), vlr);*/
+                con.write(new Text("Transacoes envolvendo Brasil "), new IntWritable(1));
+            }else{
+                con.write(new Text("Transacoes envolvendo Brasil "), new IntWritable(0));
             }
 
         }
     }
 
-    public static class ReduceForTransaction extends Reducer<Text, TransactionWritable, Text, IntWritable> {
+    public static class ReduceForTransaction extends Reducer<Text, IntWritable, Text, IntWritable> {
 
         // Funcao de reduce
-        public void reduce(Text word, Iterable<TransactionWritable> values, Context con)
+        public void reduce(Text word, Iterable<IntWritable> values, Context con)
                 throws IOException, InterruptedException {
             int sum = 0;
-            for(TransactionWritable v: values){
-                sum += v.getOcorrencia();
+            for(IntWritable v: values){
+                sum += v.get();
             }
-            con.write(word, new IntWritable());
+            con.write(word, new IntWritable(sum));
 
         }
     }
